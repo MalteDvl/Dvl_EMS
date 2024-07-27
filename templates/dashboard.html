@@ -30,16 +30,18 @@
                     labels: [],
                     datasets: [
                         {label: 'PV Production (W)', data: [], borderColor: 'rgb(255, 99, 132)', fill: false},
-                        {label: 'Battery Power (W)', data: [], borderColor: 'rgb(54, 162, 235)', fill: false},
-                        {label: 'House Consumption (W)', data: [], borderColor: 'rgb(75, 192, 192)', fill: false},
-                        {label: 'Grid Power (W)', data: [], borderColor: 'rgb(255, 159, 64)', fill: false},
-                        {label: 'Battery Level (%)', data: [], borderColor: 'rgb(201, 203, 207)', fill: false, yAxisID: 'percentage'}
+                        {label: 'Battery Charge (W)', data: [], borderColor: 'rgb(54, 162, 235)', fill: false},
+                        {label: 'Battery Discharge (W)', data: [], borderColor: 'rgb(75, 192, 192)', fill: false},
+                        {label: 'Grid Feed-In (W)', data: [], borderColor: 'rgb(255, 159, 64)', fill: false},
+                        {label: 'Grid Consumption (W)', data: [], borderColor: 'rgb(201, 203, 207)', fill: false},
+                        {label: 'Battery SoC (%)', data: [], borderColor: 'rgb(0, 128, 0)', fill: false, yAxisID: 'percentage'}
                     ]
                 },
                 options: {
                     scales: {
                         x: {
-                            display: false
+                            display: true,
+                            title: { display: true, text: 'Time' }
                         },
                         y: {
                             beginAtZero: true,
@@ -50,10 +52,23 @@
                             beginAtZero: true,
                             max: 100,
                             position: 'right',
-                            title: { display: true, text: 'Battery Level (%)' }
+                            title: { display: true, text: 'Battery SoC (%)' }
                         }
                     },
                     plugins: {
+                        tooltip: {
+                            mode: 'index',
+                            intersect: false,
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    let label = tooltipItem.dataset.label || '';
+                                    if (label) {
+                                        label += ': ' + tooltipItem.formattedValue;
+                                    }
+                                return label;
+                                }
+                            }
+                        },
                         title: {
                             display: true,
                             text: 'Live Data'
@@ -69,12 +84,24 @@
                 .then(data => {
                     data.forEach(entry => {
                         const timestamp = new Date(entry.timestamp).toLocaleTimeString();
+                        
+                        const pvProduction = entry.data.pv_production;
+                        const batteryPower = entry.data.battery_power;
+                        const gridPower = entry.data.grid_power;
+
+                        // Compute derived values
+                        const batteryCharge = Math.max(batteryPower, 0);
+                        const batteryDischarge = Math.max(-batteryPower, 0);
+                        const gridFeedIn = Math.max(gridPower, 0);
+                        const gridConsumption = Math.max(-gridPower, 0);
+
                         liveChart.data.labels.push(timestamp);
-                        liveChart.data.datasets[0].data.push(entry.data.pv_production);
-                        liveChart.data.datasets[1].data.push(entry.data.battery_power);
-                        liveChart.data.datasets[2].data.push(entry.data.house_consumption);
-                        liveChart.data.datasets[3].data.push(entry.data.grid_power);
-                        liveChart.data.datasets[4].data.push(entry.data.battery_level);
+                        liveChart.data.datasets[0].data.push(pvProduction);
+                        liveChart.data.datasets[1].data.push(batteryCharge);
+                        liveChart.data.datasets[2].data.push(batteryDischarge);
+                        liveChart.data.datasets[3].data.push(gridFeedIn);
+                        liveChart.data.datasets[4].data.push(gridConsumption);
+                        liveChart.data.datasets[5].data.push(entry.data.battery_level);
 
                         if (liveChart.data.labels.length > 20) {
                             liveChart.data.labels.shift();

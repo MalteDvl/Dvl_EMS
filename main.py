@@ -50,6 +50,17 @@ def data_logging_process(queue):
         try:
             data = get_all_enpalone_data()
             if all(v is not None for v in data.values()):
+                # Add timestamp to data
+                data_with_timestamp = {
+                    "timestamp": datetime.now().isoformat(),
+                    "data": {
+                        "pv_production": data["pv_production"],
+                        "battery_power": data["battery_power"],
+                        "house_consumption": data["house_consumption"],
+                        "grid_power": data["grid_power"],
+                        "battery_level": data["battery_level"],
+                    },
+                }
                 log_data_to_console(
                     data["pv_production"],
                     data["battery_power"],
@@ -57,7 +68,7 @@ def data_logging_process(queue):
                     data["grid_power"],
                     data["battery_level"],
                 )
-                queue.put(data)
+                queue.put(data_with_timestamp)
             else:
                 logger.warning(f"Failed to fetch all required data. Received data: {data}")
         except Exception as e:
