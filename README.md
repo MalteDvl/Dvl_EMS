@@ -12,4 +12,4 @@ Every data collection cycle the house consumption and the socket state are check
 
 ![Bild (2)](https://github.com/user-attachments/assets/a44a6b8b-c13a-4fd7-a5ee-9818dc4f43cf)
 
-![Uploading Image.jpg…]()
+![Image](https://github.com/user-attachments/assets/fbfea59d-52b3-4317-bf13-2319969e0778)
