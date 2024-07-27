@@ -4,7 +4,7 @@ This project is for Enpal.One and Fritz Box owners.
 
 It combines the Enpal.One API and the Fritz 200 CERT smart socket API.
 
-Run project using "python main.py <FritzPassword>.
+Run project using "python main.py FritzPassword"
 
 With http://localhost:5000/ you see the dashboard of your solar system as well as the current state of the Fritz power socket.
 
