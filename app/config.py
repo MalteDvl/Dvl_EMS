@@ -10,4 +10,9 @@ ENPALONE_ENDPOINTS = {
 ENPALONE_HEADERS = {"accept": "application/json", "Signature": "123"}
 
 # Application Configuration
-DATA_FETCH_INTERVAL = 30  # seconds
+DATA_FETCH_INTERVAL = 60  # seconds
+
+# Fritz Power Socket
+FRITZBOX_URL = "http://fritz.box/"
+FRITZBOX_USERNAME = "fritz8584"
+FRITZBOX_AIN = "116300435106"

@@ -5,16 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Duevell's Energy Dashboard</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f0f0f0; }
-        h1, h2 { text-align: center; color: #333; }
-        #liveDataChart { width: 100%; max-width: 1000px; margin: 20px auto; background-color: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.1); }
+        body { 
+            font-family: 'Poppins', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f0f0f0;
+            position: relative;
+        }
+        h1, h2 { 
+            text-align: center; 
+            color: #333;
+        }
+        #liveDataChart { 
+            width: 100%; 
+            max-width: 1000px; 
+            margin: 20px auto; 
+            background-color: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        #socketStatus {
+            position: absolute;
+            top: 50px; 
+            right: 170px; 
+            width: 150px;
+            height: 100px;
+            background-color: #f0f0f0;
+            border: 1px solid #ccc;
+            text-align: center;
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        #socketStatus p {
+            margin-top: 0;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        #statusIndicator {
+            width: 50%;
+            height: 75%; 
+            background-color: #00FF00;
+            margin: auto;
+        }
     </style>
 </head>
 <body>
+    <div id="socketStatus">
+        <p>Socket Status</p>
+        <div id="statusIndicator"></div>
+    </div>
     <h1>Duevell's Energy Dashboard</h1>
-
-    <h2>Live Data</h2>
     <div id="liveDataChart">
         <canvas id="liveEnergyChart"></canvas>
     </div>
@@ -34,6 +77,7 @@
                         {label: 'Battery Discharge (W)', data: [], borderColor: 'rgb(75, 192, 192)', fill: false},
                         {label: 'Grid Feed-In (W)', data: [], borderColor: 'rgb(255, 159, 64)', fill: false},
                         {label: 'Grid Consumption (W)', data: [], borderColor: 'rgb(201, 203, 207)', fill: false},
+                        {label: 'House Consumption (W)', data: [], borderColor: 'rgb(148, 0, 211)', fill: false},
                         {label: 'Battery SoC (%)', data: [], borderColor: 'rgb(0, 128, 0)', fill: false, yAxisID: 'percentage'}
                     ]
                 },
@@ -45,7 +89,7 @@
                         },
                         y: {
                             beginAtZero: true,
-                            max: 12000,
+                            max: 10000,
                             title: { display: true, text: 'Power (W)' }
                         },
                         percentage: {
@@ -68,10 +112,6 @@
                                 return label;
                                 }
                             }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Live Data'
                         }
                     }
                 }
@@ -83,11 +123,13 @@
                 .then(response => response.json())
                 .then(data => {
                     data.forEach(entry => {
-                        const timestamp = new Date(entry.timestamp).toLocaleTimeString();
-                        
+                        const date = new Date(entry.timestamp);
+                        const formattedTime = date.getHours().toString().padStart(2, '0') + ':' + date.getMinutes().toString().padStart(2, '0'); // Formats time as HH:MM
+
                         const pvProduction = entry.data.pv_production;
                         const batteryPower = entry.data.battery_power;
                         const gridPower = entry.data.grid_power;
+                        const housePower = entry.data.house_consumption;
 
                         // Compute derived values
                         const batteryCharge = Math.max(batteryPower, 0);
@@ -95,18 +137,14 @@
                         const gridFeedIn = Math.max(gridPower, 0);
                         const gridConsumption = Math.max(-gridPower, 0);
 
-                        liveChart.data.labels.push(timestamp);
+                        liveChart.data.labels.push(formattedTime);
                         liveChart.data.datasets[0].data.push(pvProduction);
                         liveChart.data.datasets[1].data.push(batteryCharge);
                         liveChart.data.datasets[2].data.push(batteryDischarge);
                         liveChart.data.datasets[3].data.push(gridFeedIn);
                         liveChart.data.datasets[4].data.push(gridConsumption);
-                        liveChart.data.datasets[5].data.push(entry.data.battery_level);
-
-                        if (liveChart.data.labels.length > 20) {
-                            liveChart.data.labels.shift();
-                            liveChart.data.datasets.forEach(dataset => dataset.data.shift());
-                        }
+                        liveChart.data.datasets[5].data.push(housePower)
+                        liveChart.data.datasets[6].data.push(entry.data.battery_level);
                     });
                     liveChart.update();
                 });
