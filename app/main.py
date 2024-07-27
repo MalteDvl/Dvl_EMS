@@ -28,15 +28,26 @@ def setup_logging(debug: bool = False):
 
 def log_data(pv: float, battery: float, house: float, grid: float, battery_level: float) -> None:
     """Log the Enpal.One data in the specified format."""
-    battery_status = "charging" if battery > 0 else "discharging"
-    grid_status = "feeding in" if grid > 0 else "consuming"
+    if battery > 0:
+        battery_status = "(charging)"
+    elif battery < 0:
+        battery_status = "(discharging)"
+    else:
+        battery_status = ""
+
+    if grid > 0:
+        grid_status = "(feeding in)"
+    elif grid < 0:
+        grid_status = "(consuming)"
+    else:
+        grid_status = ""
 
     log_entry = (
-        f"PV Production = {pv:.2f} W\n"
-        f"Battery Power = {abs(battery):.2f} W ({battery_status})\n"
-        f"House Consumption = {house:.2f} W\n"
-        f"Grid Power = {abs(grid):.2f} W ({grid_status})\n"
-        f"Battery Level = {battery_level:.2f}%\n"
+        f"PV Production = {int(pv)} W\n"
+        f"Battery Power = {int(abs(battery))} W {battery_status}\n"
+        f"House Consumption = {int(house)} W\n"
+        f"Grid Power = {int(abs(grid))} W {grid_status}\n"
+        f"Battery Level = {battery_level:.1f} %\n"
         f"{'='*40}"
     )
 
