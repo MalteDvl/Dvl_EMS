@@ -1,0 +1,10 @@
+{
+  "timestamp": "2024-07-27T13:28:55.580908",
+  "data": {
+    "pv_production": 7119,
+    "house_consumption": 327,
+    "battery_power": 0,
+    "grid_power": 6780,
+    "battery_level": 100
+  }
+}
